@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from data import DataSetFFM
 import matplotlib.pyplot as plt
 import argparse
-from Network.CFANet_C_1 import CFANet_C_1
+from Network.CCFANet import CFANet_C_1
 
 # 默认参数
 DEFAULT_BATCH_SIZE = 8
