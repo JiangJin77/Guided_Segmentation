@@ -46,4 +46,3 @@ dataset/
 使用 `Tools/set_dataset.py` 中的 `add_conv` 函数：
 1. 对原始图像做阈值分割（lower=17.5, upper=22.0）
 2. 用不同尺寸的卷积核做多尺度卷积并加权求和
-
