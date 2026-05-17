@@ -380,7 +380,7 @@ class Bottle2neck(nn.Module):
 class CCFANet(nn.Module):
     # resnet based encoder decoder
     def __init__(self, resinc, channel=64, opt=None):
-        super(CFANet_C_1, self).__init__()
+        super(CCFANet, self).__init__()
 
         act_fn = nn.LeakyReLU(inplace=True)
 

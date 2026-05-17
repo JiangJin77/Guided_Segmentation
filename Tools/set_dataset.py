@@ -99,9 +99,7 @@ def get_slice_tensor(file_path, save_file, flag='data', lower=17.5, upper=22, ra
 
 if __name__ == "__main__":
     # 生成5折交叉总的数据集
-    a = 0.75
-    b = 0.25
-    k = 1
+    a, b, k = 0.75, 0.25, 1
     data_path = r"E:\JiangJin\dataset\train_test\data"
     label_path = r"E:\JiangJin\dataset\train_test\labelmap"
     data_save_path = r"E:\My_vscode_project\Guidance\Project_1\dataset\5folds\tensor\images"
