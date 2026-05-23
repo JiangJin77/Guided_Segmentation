@@ -41,7 +41,7 @@ class DataSetFFM(Dataset):
         self.data_list = self._load_data_list()
         self.total_len = len(self.data_list) * self.augment_factor
 
-        if verbose: 
+        if verbose:     
             logger.info('从 %s 中导入 %d 个文件', self.data_path, len(self.data_list))
             logger.info('数据总数: %d', self.total_len)
 
@@ -70,24 +70,28 @@ class DataSetFFM(Dataset):
             }
             for name in common_names
         ]
+    
     # 确保张量的数据类型和形状
     @staticmethod
     def _load_h5(path):
         with h5py.File(path, 'r') as f:
             return torch.from_numpy(f['data'][()])
 
+    # 确保张量的数据类型正确，并且不包含梯度信息
     @staticmethod
     def _ensure_tensor(value, dtype):
         tensor = torch.as_tensor(value)
         if tensor.dtype != dtype:
             tensor = tensor.to(dtype)
         return tensor.detach()
+    
     # 如果图像或掩码是二维或三维的，添加一个通道维度
     @staticmethod
     def _add_channel_dim(tensor: torch.Tensor):
         if tensor.ndim in {2, 3}:
             return tensor.unsqueeze(0)
         return tensor
+    
     # 验证掩码张量的值
     @staticmethod
     def _validate_mask(mask: torch.Tensor):
