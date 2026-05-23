@@ -32,9 +32,9 @@ dataset/
         │     └── ...
 ```
 
-- images: `torch.float32`, shape `(H, W)`
-- masks: `torch.uint8`, shape `(H, W)`，值范围 {0, 1, 2}
-- thresholds: `torch.float32`, shape `(H, W)`
+- images: `torch.float32`, shape：`(H, W)`
+- masks: `torch.uint8`, shape：`(H, W)`，值范围：`{0, 1, 2}`
+- thresholds: `torch.float32`, shape：`(H, W)`
 
 ### 阈值引导图生成
 使用 `Tools/set_dataset.py` 中的 `add_conv` 函数：
