@@ -377,10 +377,10 @@ class Bottle2neck(nn.Module):
         return out
 
 
-class CFANet_C_1(nn.Module):
+class CCFANet(nn.Module):
     # resnet based encoder decoder
     def __init__(self, resinc, channel=64, opt=None):
-        super(CFANet_C_1, self).__init__()
+        super(CCFANet, self).__init__()
 
         act_fn = nn.LeakyReLU(inplace=True)
 
@@ -543,13 +543,13 @@ class CFANet_C_1(nn.Module):
             return sal_out3
 
 if __name__ == '__main__':
-    model = CFANet_C_1(resinc=1)
+    model = CCFANet(resinc=1)
     input_images = torch.randn(8, 1, 256, 256)
     x0, x1, x2, x3 = model(input_images)
     print("单通道")
     print(x0.shape, x1.shape, x2.shape, x3.shape)
 
-    model = CFANet_C_1(resinc=2)
+    model = CCFANet(resinc=2)
     input_images = torch.randn(8, 2, 256, 256)
     x0, x1, x2, x3 = model(input_images)
     print("双通道")

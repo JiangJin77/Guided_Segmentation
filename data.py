@@ -1,6 +1,7 @@
-import logging  # 用于记录数据加载和处理的日志信息
+import logging
 from pathlib import Path
 
+import h5py
 import torch
 from torch.utils.data import Dataset
 
@@ -40,7 +41,7 @@ class DataSetFFM(Dataset):
         self.data_list = self._load_data_list()
         self.total_len = len(self.data_list) * self.augment_factor
 
-        if verbose: 
+        if verbose:     
             logger.info('从 %s 中导入 %d 个文件', self.data_path, len(self.data_list))
             logger.info('数据总数: %d', self.total_len)
 
@@ -55,33 +56,42 @@ class DataSetFFM(Dataset):
                 logger.warning('目录不存在: %s', directory)
                 return []
 
-        image_names = {path.stem for path in images_dir.glob('*.pt')}
-        mask_names = {path.stem for path in masks_dir.glob('*.pt')}
-        threshold_names = {path.stem for path in thresholds_dir.glob('*.pt')}
+        image_names = {path.stem for path in images_dir.glob('*.h5')}
+        mask_names = {path.stem for path in masks_dir.glob('*.h5')}
+        threshold_names = {path.stem for path in thresholds_dir.glob('*.h5')}
 
         common_names = sorted(image_names & mask_names & threshold_names)
         return [
             {
                 'base_name': name,
-                'image': images_dir / f'{name}.pt',
-                'mask': masks_dir / f'{name}.pt',
-                'threshold': thresholds_dir / f'{name}.pt',
+                'image': images_dir / f'{name}.h5',
+                'mask': masks_dir / f'{name}.h5',
+                'threshold': thresholds_dir / f'{name}.h5',
             }
             for name in common_names
         ]
+    
     # 确保张量的数据类型和形状
-    @staticmethod    
+    @staticmethod
+    def _load_h5(path):
+        with h5py.File(path, 'r') as f:
+            return torch.from_numpy(f['data'][()])
+
+    # 确保张量的数据类型正确，并且不包含梯度信息
+    @staticmethod
     def _ensure_tensor(value, dtype):
         tensor = torch.as_tensor(value)
         if tensor.dtype != dtype:
             tensor = tensor.to(dtype)
         return tensor.detach()
+    
     # 如果图像或掩码是二维或三维的，添加一个通道维度
     @staticmethod
     def _add_channel_dim(tensor: torch.Tensor):
         if tensor.ndim in {2, 3}:
             return tensor.unsqueeze(0)
         return tensor
+    
     # 验证掩码张量的值
     @staticmethod
     def _validate_mask(mask: torch.Tensor):
@@ -101,9 +111,9 @@ class DataSetFFM(Dataset):
         aug_mode = idx % self.augment_factor
         paths = self.data_list[data_idx]
 
-        image = torch.load(paths['image'], map_location='cpu')
-        mask = torch.load(paths['mask'], map_location='cpu')
-        threshold = torch.load(paths['threshold'], map_location='cpu')
+        image = self._load_h5(paths['image'])
+        mask = self._load_h5(paths['mask'])
+        threshold = self._load_h5(paths['threshold'])
 
         image = self._ensure_tensor(image, torch.float32)
         mask = self._ensure_tensor(mask, torch.long)

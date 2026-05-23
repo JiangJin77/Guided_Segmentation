@@ -8,6 +8,7 @@
 """
 import os
 import math
+import h5py
 import numpy as np
 import SimpleITK as sitk
 import torch
@@ -61,14 +62,14 @@ def add_conv(image, alpha=0.5, beta=0.5, radii=None, lower=17.5, upper=22):
 
 def get_slice_tensor(file_path, save_file, flag='data', lower=17.5, upper=22, radii=None, alpha=0.5, beta=0.5):     
     """将nii.gz文件转换为切片张量并保存
-    :param file_path: 输入数据集路径
-    :param save_file: 输出数据集路径
-    :param flag: 数据集类型
-    :param lower: 阈值下限
-    :param upper: 阈值上限
-    :param radii: 卷积核的半径列表
-    :param alpha: 卷积核的权重衰减系数alpha
-    :param beta: 卷积核的权重衰减系数beta
+        :param file_path: 输入数据集路径
+        :param save_file: 输出数据集路径
+        :param flag: 数据集类型
+        :param lower: 阈值下限
+        :param upper: 阈值上限
+        :param radii: 卷积核的半径列表
+        :param alpha: 卷积核的权重衰减系数alpha
+        :param beta: 卷积核的权重衰减系数beta
     """
     if radii is None:
         radii = range(1, 4)
@@ -89,17 +90,16 @@ def get_slice_tensor(file_path, save_file, flag='data', lower=17.5, upper=22, ra
         elif flag == 'threshold':
             image_tensor = add_conv(image, alpha=alpha, beta=beta, radii=radii, lower=lower, upper=upper)
 
-        for i in range(image_tensor.shape[0]):  
+        for i in range(image_tensor.shape[0]):
             slice_tensor = image_tensor[i, :, :]
-            slice_save_path = os.path.join(save_file, f"{file.replace('.nii.gz', '')}_{i}.pt")
-            torch.save(slice_tensor, slice_save_path, _use_new_zipfile_serialization=True)   
+            slice_save_path = os.path.join(save_file, f"{file.replace('.nii.gz', '')}_{i}.h5")
+            with h5py.File(slice_save_path, 'w') as f:
+                f.create_dataset('data', data=slice_tensor.numpy(), compression='gzip')   
 
 
 if __name__ == "__main__":
     # 生成5折交叉总的数据集
-    a = 0.75
-    b = 0.25
-    k = 1
+    a, b, k = 0.75, 0.25, 1
     data_path = r"E:\JiangJin\dataset\train_test\data"
     label_path = r"E:\JiangJin\dataset\train_test\labelmap"
     data_save_path = r"E:\My_vscode_project\Guidance\Project_1\dataset\5folds\tensor\images"
